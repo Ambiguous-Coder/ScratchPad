@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ScratchPad</title>
+  <style>
+    :root {
+      --bg-color: #ffffff;
+      --text-main: #222222;
+      --text-muted: #666666;
+      --input-bg: #ffffff;
+      --input-border: #cccccc;
+      --input-text: #000000;
+      --btn-bg: #f8f9fa;
+      --btn-text: #333333;
+      --btn-border: #cccccc;
+      --header-bg: #f8f9fa;
+      --header-border: #e9ecef;
+      --accent: #0066cc;
+    }
+
+    [data-theme="dark"] {
+      --bg-color: #121212;
+      --text-main: #e0e0e0;
+      --text-muted: #aaaaaa;
+      --input-bg: #1e1e1e;
+      --input-border: #444444;
+      --input-text: #ffffff;
+      --btn-bg: #2a2a2a;
+      --btn-text: #e0e0e0;
+      --btn-border: #444444;
+      --header-bg: #1a1a1a;
+      --header-border: #333333;
+      --accent: #3399ff;
+    }
+
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    /* Theme Toggle Button */
+    .theme-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: var(--btn-bg);
+      border: 1px solid var(--btn-border);
+      color: var(--btn-text);
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      z-index: 1000;
+    }
+    .theme-toggle:hover {
+      opacity: 0.8;
+    }
+
+    /* Dontpad Minimalist Centered Homepage Style */
+    .home-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+      padding: 20px;
+    }
+    .home-content {
+      max-width: 500px;
+      width: 100%;
+    }
+    .home-content h1 {
+      font-size: 48px;
+      font-weight: 300;
+      margin-bottom: 8px;
+      letter-spacing: -1px;
+    }
+    .home-content p {
+      color: var(--text-muted);
+      font-size: 16px;
+      margin-bottom: 30px;
+    }
+    .url-box {
+      display: flex;
+      align-items: center;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 6px;
+      padding: 4px 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .url-prefix {
+      color: var(--text-muted);
+      font-size: 16px;
+      padding-left: 8px;
+      user-select: none;
+      font-family: monospace;
+    }
+    .url-box input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 12px 8px;
+      font-size: 18px;
+      color: var(--input-text);
+      outline: none;
+      font-family: monospace;
+    }
+    .url-box button {
+      background: #000000; /* Solid black background for the Go button box */
+      color: #ffffff;      /* White text so it's clearly readable */
+      border: none;
+      padding: 10px 18px;
+      font-size: 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    .url-box button:hover {
+      opacity: 0.85;
+    }
+
+    /* Active Notepad View Styles */
+    .notepad-container {
+      display: none;
+      height: 100%;
+      flex-direction: column;
+    }
+    .header {
+      padding: 10px 16px;
+      background: var(--header-bg);
+      border-bottom: 1px solid var(--header-border);
+      font-size: 14px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .btn {
+      background: var(--btn-bg);
+      color: var(--btn-text);
+      border: 1px solid var(--btn-border);
+      padding: 5px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 12px;
+      text-decoration: none;
+    }
+    .btn:hover {
+      opacity: 0.8;
+    }
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    textarea {
+      width: 100vw;
+      height: calc(100vh - 43px);
+      border: none;
+      padding: 16px;
+      font-size: 16px;
+      font-family: monospace;
+      line-height: 1.5;
+      resize: none;
+      box-sizing: border-box;
+      outline: none;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Theme Toggle Button -->
+  <button id="theme-toggle-btn" class="theme-toggle">🌓 Theme</button>
+
+  <!-- Homepage Landing View (Dontpad Style) -->
+  <div id="home-view" class="home-container">
+    <div class="home-content">
+      <h1>ScratchPad</h1>
+      <p>A simple notepad online. Type your numeric code below to open a pad.</p>
+      <form id="code-form">
+        <div class="url-box">
+          <span class="url-prefix">localhost:3000/</span>
+          <input 
+            type="text" 
+            id="code-input" 
+            placeholder="1234" 
+            required 
+            autocomplete="off" 
+            inputmode="numeric" 
+            pattern="[0-9]*" 
+          />
+          <button type="submit">Go</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Active Notepad View -->
+  <div id="notepad-view" class="notepad-container">
+    <div class="header">
+      <div>Pad Code: <span id="path-display" style="font-weight: bold;"></span></div>
+      <div class="header-actions">
+        <button id="save-btn" class="btn">Save</button>
+        <button id="save-exit-btn" class="btn btn-primary">Save & Exit</button>
+        <a href="/" class="btn">Home</a>
+      </div>
+    </div>
+    <textarea id="notepad" placeholder="Start typing..."></textarea>
+  </div>
+
+  <!-- Socket.IO Client Library -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    // Theme Switcher Logic
+    const htmlElement = document.documentElement;
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    htmlElement.setAttribute('data-theme', savedTheme);
+
+    themeToggleBtn.addEventListener('click', () => {
+      const currentTheme = htmlElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      htmlElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+    });
+
+    // App Routing & Logic
+    const currentPath = window.location.pathname;
+
+    if (currentPath === '/' || currentPath === '') {
+      document.getElementById('home-view').style.display = 'flex';
+      document.getElementById('notepad-view').style.display = 'none';
+
+      const codeInput = document.getElementById('code-input');
+      
+      codeInput.addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/[^0-9]/g, '');
+      });
+
+      document.getElementById('code-form').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const code = codeInput.value.trim();
+        if (code) {
+          window.location.href = '/' + code;
+        }
+      });
+    } else {
+      document.getElementById('home-view').style.display = 'none';
+      document.getElementById('notepad-view').style.display = 'flex';
+      document.getElementById('path-display').innerText = currentPath;
+
+      const socket = io();
+      const textarea = document.getElementById('notepad');
+      const saveBtn = document.getElementById('save-btn');
+      const saveExitBtn = document.getElementById('save-exit-btn');
+
+      socket.emit('join-room', currentPath);
+
+      socket.on('load-content', (content) => {
+        textarea.value = content;
+      });
+
+      let isRemoteUpdate = false;
+      
+      textarea.addEventListener('input', () => {
+        if (isRemoteUpdate) return;
+        const content = textarea.value;
+        socket.emit('text-change', { roomPath: currentPath, content });
+      });
+
+      saveBtn.addEventListener('click', () => {
+        const content = textarea.value;
+        socket.emit('text-change', { roomPath: currentPath, content });
+        
+        const originalText = saveBtn.innerText;
+        saveBtn.innerText = 'Saved!';
+        setTimeout(() => {
+          saveBtn.innerText = originalText;
+        }, 1500);
+      });
+
+      saveExitBtn.addEventListener('click', () => {
+        const content = textarea.value;
+        socket.emit('text-change', { roomPath: currentPath, content });
+        window.location.href = '/';
+      });
+
+      socket.on('receive-text-change', (content) => {
+        isRemoteUpdate = true;
+        textarea.value = content;
+        isRemoteUpdate = false;
+      });
+    }
+  </script>
+
+</body>
+</html>
